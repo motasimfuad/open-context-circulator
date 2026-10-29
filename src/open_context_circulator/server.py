@@ -19,13 +19,23 @@ from .relay import (
 from .store import MessageStore
 
 
+def _get_default_max_context_tokens() -> int:
+    val = os.environ.get("OCC_MAX_CONTEXT_TOKENS")
+    if val:
+        try:
+            return int(val)
+        except ValueError:
+            pass
+    return 4000
+
+
 class ChatRequest(BaseModel):
     """Chat completion request model supporting standard OpenAI and OCC fields."""
     model_config = ConfigDict(extra="allow")
 
     session_id: Optional[str] = None
     messages: list[dict] = Field(..., min_length=1)
-    max_context_tokens: int = 4000
+    max_context_tokens: int = Field(default_factory=_get_default_max_context_tokens)
     model: Optional[str] = None
     temperature: Optional[float] = None
     max_tokens: Optional[int] = None
@@ -98,11 +108,12 @@ def set_store(store: Optional[MessageStore]) -> None:
     _store = store
 
 
-def get_engine(max_tokens: int = 4000) -> ContextEngine:
+def get_engine(max_tokens: Optional[int] = None) -> ContextEngine:
     """Get or create context engine."""
     global _engine
     if _engine is None:
-        _engine = ContextEngine(max_tokens=max_tokens)
+        effective_max = max_tokens if max_tokens is not None else _get_default_max_context_tokens()
+        _engine = ContextEngine(max_tokens=effective_max)
     return _engine
 
 
@@ -236,4 +247,6 @@ async def chat_completions(request: ChatRequest):
 # For running directly with uvicorn
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    host = os.environ.get("OCC_HOST", "0.0.0.0")
+    port = int(os.environ.get("OCC_PORT") or os.environ.get("PORT", "8000"))
+    uvicorn.run(app, host=host, port=port)

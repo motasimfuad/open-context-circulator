@@ -6,6 +6,11 @@ build-backend = "setuptools.build_meta"
 name = "open-context-circulator"
 version = "0.1.0"
 description = "Context virtualization relay for AI agents"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Motasim Fuad"}
+]
 requires-python = ">=3.10"
 dependencies = [
     "fastapi>=0.104.0",
@@ -13,6 +18,10 @@ dependencies = [
     "pydantic>=2.0.0",
     "httpx>=0.24.0",
 ]
+
+[project.scripts]
+open-context-circulator = "open_context_circulator.cli:main"
+occ = "open_context_circulator.cli:main"
 
 [project.optional-dependencies]
 test = [

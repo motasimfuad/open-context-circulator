@@ -17,10 +17,10 @@ class RelayConfig(BaseModel):
     def from_env(cls) -> "RelayConfig":
         """Load configuration from environment variables."""
         return cls(
-            upstream_url=os.environ.get("UPSTREAM_URL", "http://127.0.0.1:8045/v1"),
-            api_key=os.environ.get("UPSTREAM_API_KEY"),
-            timeout=float(os.environ.get("UPSTREAM_TIMEOUT", "30.0")),
-            default_model=os.environ.get("UPSTREAM_MODEL", "default"),
+            upstream_url=os.environ.get("OCC_UPSTREAM_URL") or os.environ.get("UPSTREAM_URL", "http://127.0.0.1:8045/v1"),
+            api_key=os.environ.get("OCC_UPSTREAM_API_KEY") or os.environ.get("UPSTREAM_API_KEY"),
+            timeout=float(os.environ.get("OCC_UPSTREAM_TIMEOUT") or os.environ.get("UPSTREAM_TIMEOUT", "30.0")),
+            default_model=os.environ.get("OCC_UPSTREAM_MODEL") or os.environ.get("UPSTREAM_MODEL", "default"),
         )
 
 
