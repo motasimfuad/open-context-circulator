@@ -8,8 +8,34 @@ from open_context_circulator.server import app
 
 @pytest.fixture
 def client():
-    """Create a test client for the FastAPI app."""
-    return TestClient(app)
+    """Create a test client for the FastAPI app with a mock relay."""
+    from open_context_circulator.server import set_relay
+
+    class MockRelay:
+        async def forward_chat_completion(self, messages, model=None, **kwargs):
+            return {
+                "id": "chatcmpl-mock",
+                "object": "chat.completion",
+                "created": 123456789,
+                "model": model or "mock-model",
+                "choices": [
+                    {
+                        "index": 0,
+                        "message": {
+                            "role": "assistant",
+                            "content": "Context received. Mock upstream assistant response.",
+                        },
+                        "finish_reason": "stop",
+                    }
+                ],
+                "usage": {"total_tokens": 42},
+            }
+
+    mock = MockRelay()
+    set_relay(mock)
+    test_client = TestClient(app)
+    yield test_client
+    set_relay(None)
 
 
 class TestHealthEndpoint:
