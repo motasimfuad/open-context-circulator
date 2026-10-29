@@ -16,7 +16,13 @@ dependencies = [
 [project.optional-dependencies]
 test = [
     "pytest>=7.4.0",
+    "httpx>=0.24.0",
 ]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+]
